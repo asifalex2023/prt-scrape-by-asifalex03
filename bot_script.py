@@ -55,17 +55,20 @@ def scrape_search_results(search_query):
     # Find the links to the individual torrent pages from the search results
     torrent_links = []
     for a_tag in soup.find_all('a', href=True):
-        # Debug: Print all 'a' tags to see if we can find the correct ones
-        print("Found a tag:", a_tag.get('href'))
+        link = a_tag['href']
+        # Debug: Print the found 'a' tag href
+        print("Found a tag:", link)
 
-        if '/torrents/' in a_tag['href']:  # Only consider links that lead to individual torrent pages
-            torrent_page_url = a_tag['href']
-            print(f"Found torrent link: {torrent_page_url}")
+        # Filter links that are more likely to be individual torrent pages (not category, RSS, etc.)
+        if '/torrents/' in link:  # Only consider links that lead to individual torrent pages
+            print(f"Found torrent page link: {link}")
+            torrent_page_url = link
             torrent_link = scrape_torrent_page(torrent_page_url)  # Scrape the torrent page for the actual torrent file link
             if torrent_link:
                 torrent_links.append(torrent_link)
 
     return torrent_links
+
 
 
 # Function to save the torrent links to a text file
