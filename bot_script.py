@@ -25,15 +25,16 @@ def scrape_torrent_page(url):
     # Debug: Print the entire HTML of the torrent page
     print(f"Torrent Page HTML for {url}:", soup.prettify()[:500])  # Print the first 500 chars
 
-    # Find the actual torrent file link (e.g., '/torrents/filename.torrent')
-    torrent_link = soup.find('a', href=True, string="Torrent Download")  # Adjust based on actual button text or class
+    # Look for the download link for the .torrent file (adjust based on the actual HTML structure)
+    download_button = soup.find('a', href=True, string="Download Torrent")  # You may need to adjust this selector
 
-    # If the download button is found, extract the torrent link
-    if torrent_link:
-        print("Torrent download link found:", torrent_link['href'])
-        return torrent_link['href']
+    if download_button:
+        torrent_url = download_button['href']
+        if torrent_url.endswith('.torrent'):
+            print(f"Found .torrent link: {torrent_url}")
+            return torrent_url
     else:
-        print("Torrent download button not found.")
+        print("Download button or torrent link not found on this page.")
         return None
 
 
@@ -59,8 +60,8 @@ def scrape_search_results(search_query):
         # Debug: Print the found 'a' tag href
         print("Found a tag:", link)
 
-        # Filter links that are more likely to be individual torrent pages (not category, RSS, etc.)
-        if '/torrents/' in link:  # Only consider links that lead to individual torrent pages
+        # Filter links that are more likely to be individual torrent pages (valid torrent links)
+        if 'pornrips.to/' in link and '/torrents/' not in link:  # Only select valid pages that are not RSS or category links
             print(f"Found torrent page link: {link}")
             torrent_page_url = link
             torrent_link = scrape_torrent_page(torrent_page_url)  # Scrape the torrent page for the actual torrent file link
@@ -68,7 +69,6 @@ def scrape_search_results(search_query):
                 torrent_links.append(torrent_link)
 
     return torrent_links
-
 
 # Function to save the torrent links to a text file
 def save_torrent_links(torrent_links, filename="torrent_links.txt"):
