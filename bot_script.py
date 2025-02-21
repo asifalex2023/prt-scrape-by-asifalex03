@@ -11,7 +11,7 @@ load_dotenv()
 TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-# Function to scrape individual torrent download page
+# Function to scrape the torrent page and extract the torrent download link
 def scrape_torrent_page(url):
     response = requests.get(url)
 
@@ -25,18 +25,19 @@ def scrape_torrent_page(url):
     # Debug: Print the entire HTML of the torrent page
     print(f"Torrent Page HTML for {url}:", soup.prettify()[:500])  # Print the first 500 chars
 
-    # Find the "Torrent Download" button/link (you may need to adjust the selector)
-    download_button = soup.find('a', {'class': 'btn-download'})  # Adjust based on actual class or element
+    # Find the actual torrent file link (e.g., '/torrents/filename.torrent')
+    torrent_link = soup.find('a', href=True, string="Torrent Download")  # Adjust based on actual button text or class
 
-    # Check if the download button is found
-    if download_button:
-        print("Download button found:", download_button.get('href'))
-        return download_button['href']
+    # If the download button is found, extract the torrent link
+    if torrent_link:
+        print("Torrent download link found:", torrent_link['href'])
+        return torrent_link['href']
     else:
-        print("Download button not found on this page.")
+        print("Torrent download button not found.")
         return None
 
-# Function to scrape search results page
+
+# Function to scrape search results page for individual torrent page links
 def scrape_search_results(search_query):
     search_url = f"https://pornrips.to/?s={search_query}"
     response = requests.get(search_url)
@@ -67,6 +68,7 @@ def scrape_search_results(search_query):
                 torrent_links.append(torrent_link)
 
     return torrent_links
+
 
 # Function to save the torrent links to a text file
 def save_torrent_links(torrent_links, filename="torrent_links.txt"):
