@@ -14,32 +14,59 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 # Function to scrape individual torrent download page
 def scrape_torrent_page(url):
     response = requests.get(url)
+
+    # Check if the response is valid
+    if response.status_code != 200:
+        print(f"Error fetching torrent page: {response.status_code}")
+        return None
+
     soup = BeautifulSoup(response.text, 'html.parser')
 
+    # Debug: Print the entire HTML of the torrent page
+    print(f"Torrent Page HTML for {url}:", soup.prettify()[:500])  # Print the first 500 chars
+
     # Find the "Torrent Download" button/link (you may need to adjust the selector)
-    torrent_link = None
-    download_button = soup.find('a', {'class': 'btn-download'})  # Assuming this is the button's class
-    if download_button and download_button.get('href'):
-        torrent_link = download_button['href']
-    
-    return torrent_link
+    download_button = soup.find('a', {'class': 'btn-download'})  # Adjust based on actual class or element
+
+    # Debug: Check if the download button is found
+    if download_button:
+        print("Download button found:", download_button.get('href'))
+        return download_button['href']
+    else:
+        print("Download button not found on this page.")
+        return None
+
 
 # Function to scrape search results page
 def scrape_search_results(search_query):
     search_url = f"https://pornrips.to/?s={search_query}"
     response = requests.get(search_url)
+    
+    # Check if the response is valid
+    if response.status_code != 200:
+        print(f"Error fetching search results: {response.status_code}")
+        return []
+    
     soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Debug: Print the entire HTML of the search results
+    print("Search Results Page HTML:", soup.prettify()[:500])  # Print the first 500 chars
 
     # Find the links to the individual torrent pages from the search results
     torrent_links = []
     for a_tag in soup.find_all('a', href=True):
+        # Debug: Print all 'a' tags to see if we can find the correct ones
+        print("Found a tag:", a_tag.get('href'))
+
         if '/torrents/' in a_tag['href']:  # Only consider links that lead to individual torrent pages
             torrent_page_url = a_tag['href']
+            print(f"Found torrent link: {torrent_page_url}")
             torrent_link = scrape_torrent_page(torrent_page_url)  # Scrape the torrent page for the actual torrent file link
             if torrent_link:
                 torrent_links.append(torrent_link)
 
     return torrent_links
+
 
 # Function to save the torrent links to a text file
 def save_torrent_links(torrent_links, filename="torrent_links.txt"):
