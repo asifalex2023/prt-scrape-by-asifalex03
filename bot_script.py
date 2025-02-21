@@ -3,9 +3,14 @@ from bs4 import BeautifulSoup
 from telegram import Bot
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# Your Telegram Bot token
-TOKEN = 'YOUR_BOT_API_TOKEN'
-CHAT_ID = 'YOUR_CHAT_ID'  # You can use your own chat ID or a group chat ID
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load environment variables from .env file
+
+TOKEN = os.getenv('TELEGRAM_TOKEN')
+CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+
 
 # Function to scrape individual torrent download page
 def scrape_torrent_page(url):
