@@ -28,14 +28,13 @@ def scrape_torrent_page(url):
     # Find the "Torrent Download" button/link (you may need to adjust the selector)
     download_button = soup.find('a', {'class': 'btn-download'})  # Adjust based on actual class or element
 
-    # Debug: Check if the download button is found
+    # Check if the download button is found
     if download_button:
         print("Download button found:", download_button.get('href'))
         return download_button['href']
     else:
         print("Download button not found on this page.")
         return None
-
 
 # Function to scrape search results page
 def scrape_search_results(search_query):
@@ -68,8 +67,6 @@ def scrape_search_results(search_query):
                 torrent_links.append(torrent_link)
 
     return torrent_links
-
-
 
 # Function to save the torrent links to a text file
 def save_torrent_links(torrent_links, filename="torrent_links.txt"):
